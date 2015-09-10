@@ -18,7 +18,7 @@ Scikit-image
 Scikit image is a collection of algorithms for image analysis built of numpy with
 custom Cython code.
 
-The scikit is widely used 
+The scikit is widely used
 *  Scikit image builds off of NumPy with custom Cython code
 *  Algorithms are sophisticated, used daily, but generally restricted to
    a single-core.
@@ -32,13 +32,16 @@ Dask.array
 
 *Section by Matthew Rocklin:*
 
-Dask.array breaks large arrays into chunks and orchestrates many numpy calls in parallel. 
-*   Dask.array cuts blocks out of a large array and orchestrates many numpy
-    calls in parallel.
+Dask.array breaks large arrays into chunks and orchestrates many numpy calls in
+parallel. And manageing the work to minimize memory consumption. It tries to
+mimic the NumPy API.
 
-Dask.array.ghost 
-*   Dask.array.ghost manages slightly overlapping sub-arrays, solving
-    scikit-image's situation well
+Internally dask.array breaks larger arrays into smaller "chunks", then uses
+blocked algorithms on these chunks.
+
+Dask.array.ghost features functions for making chunks overlap. This is useful
+when a algorithms require parts of the array to exchange data. For example in
+scikit image, a gaussian blur averages values of surrounding array elements.
 
 
 Efforts to combine the two
@@ -46,7 +49,8 @@ Efforts to combine the two
 
 *Section by Blake Griffith*
 
-Scikit-Image needed a way to parallelize its filtering functions. Dask can do this. Given a NumPy array we'd want to:
+Scikit-Image needed a way to parallelize its filtering functions. Dask can do
+this. Given a NumPy array we'd want to:
 
 1. to create a dask array from the numpy array.
 2. "ghost" the array with a depth specified by the user
