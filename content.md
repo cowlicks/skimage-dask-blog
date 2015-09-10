@@ -3,12 +3,11 @@ SciKit Image and Dask Array
 
 [Scikit-image](http://scikit-image.org/) is a library for image analysis.  It
 contains tuned implementations for common image analyses like filtering, blob
-finding, and edge detection.
-[Dask](http://dask.pydata.org) is library for parallel computation.
-Dask.array is a NumPy clone that supports multi-core execution of arrays in
-memory or on disk.
-Recent work integrates the two, enabling many of the image processing functions
-in scikit-image to leverage the multiple cores of a modern CPU.
+finding, and edge detection.  [Dask](http://dask.pydata.org) is library for
+parallel computation.  Dask.array is a NumPy clone that supports multi-core
+execution of arrays in memory or on disk.  Recent work integrates the two,
+enabling many of the image processing functions in scikit-image to leverage the
+multiple cores of a modern CPU.
 
 
 Scikit-image
@@ -16,6 +15,10 @@ Scikit-image
 
 *Section by Stefan van der Walt:*
 
+Scikit image is a collection of algorithms for image analysis built of numpy with
+custom Cython code.
+
+The scikit is widely used 
 *  Scikit image builds off of NumPy with custom Cython code
 *  Algorithms are sophisticated, used daily, but generally restricted to
    a single-core.
@@ -29,8 +32,11 @@ Dask.array
 
 *Section by Matthew Rocklin:*
 
+Dask.array breaks large arrays into chunks and orchestrates many numpy calls in parallel. 
 *   Dask.array cuts blocks out of a large array and orchestrates many numpy
     calls in parallel.
+
+Dask.array.ghost 
 *   Dask.array.ghost manages slightly overlapping sub-arrays, solving
     scikit-image's situation well
 
@@ -48,9 +54,21 @@ Scikit-Image needed a way to parallelize its filtering functions. Dask can do th
 4. trim the ghost cells
 5. re-combine our chunks into a NumPy array and return the result
 
-Scikit-Image could make its own function to do this, but it seems like a common enough routine that we would want wrap it up into a function. So we added the `dask.array.ghost.map_overlap` method. This handles steps 2 - 4.
+Scikit-Image could make its own function to do this, but it seems like a common
+enough routine that we would want wrap it up into a function. So we added the
+`dask.array.ghost.map_overlap` method. This handles steps 2 - 4.
 
-We decided to leave the dask array creation up to scikit-image so they could choose the appropriate chunk layout.So in Scikit-Image we added `skimage.util.apply_parallel` which handles steps 1 and 5. Skimage's most common usecase is optimizing for parallelization (instead of handling out-of-core data), so we break up the numpy array into `count_cpu()` chunks. The ghosting depth must also be chosen by the skimage user in `apply_parallel` because there is no simple way to infer this by inspecting the input function. And the user of skimage should be knowledgeable about the size of the filter's [kernel](https://en.wikipedia.org/wiki/Kernel_%28image_processing%29).  So in skimage we basically ended up with
+We decided to leave the dask array creation up to scikit-image so they could
+choose the appropriate chunk layout.So in Scikit-Image we added
+`skimage.util.apply_parallel` which handles steps 1 and 5. Skimage's most
+common usecase is optimizing for parallelization (instead of handling
+out-of-core data), so we break up the numpy array into `count_cpu()` chunks.
+The ghosting depth must also be chosen by the skimage user in `apply_parallel`
+because there is no simple way to infer this by inspecting the input function.
+And the user of skimage should be knowledgeable about the size of the filter's
+[kernel](https://en.wikipedia.org/wiki/Kernel_%28image_processing%29).  So in
+skimage we basically ended up with
+
 
 ```python
 import dask.array as da
